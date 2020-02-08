@@ -1,0 +1,23 @@
+CC = gcc
+CFLAGS = -Wall
+
+LDFLAGS = -L.
+
+HEX_LIB = hexdump_static
+
+all: main_static
+
+
+main_static: main.o lib$(HEX_LIB).a
+	$(CC) $(CFLAGS) $< -l$(HEX_LIB) $(LDFLAGS) -o $@
+
+lib$(HEX_LIB).a: hexdump.o sample.o
+	ar rc $@ $^
+
+main.o: main.c
+hexdump.o: hexdump.c
+sample.o: sample.c
+
+.PHONY:
+clean:
+	rm -f *.o main_static libhexdump_static.a
