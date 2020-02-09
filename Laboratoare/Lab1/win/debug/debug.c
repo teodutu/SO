@@ -5,21 +5,21 @@ int bug;
 
 int f(int a, int b)
 {
-	int c;
+    int c;
 
-	c = a + b;
+    c = a + b;
 
-	return c;
+    return c;
 }
 
 int main(void)
 {
-	printf("Hello SO\n");
+    printf("Hello SO\n");
 
-	bug = f(1, 2);
+    bug = f(1, 2);
 
-	printf("bug = %d\n", bug);
+    printf("bug = %d\n", bug);
 
-	return 0;
+    return 0;
 }
 
