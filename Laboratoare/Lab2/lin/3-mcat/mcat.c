@@ -22,7 +22,10 @@
 
 int main(int argc, char **argv)
 {
-    int fd_src, fd_dst, rc, bytesRead;
+    int fd_src, fd_dst, rc;
+    int bytes_read, total_bytes, total_read = 0;
+    int bytes_written, total_written, bytes_to_write;
+
     char buffer[BUFSIZE];
 
     if (argc < 2 || argc > 3) {
@@ -34,22 +37,35 @@ int main(int argc, char **argv)
     fd_src = open(argv[1], O_RDONLY);
     DIE(fd_src < 0, "Failed ro open source file");
 
+    total_bytes = lseek(fd_src, 0 , SEEK_END);
+    lseek(fd_src, 0, SEEK_SET);
+
     if (argc == 3) {
         fd_dst = open(argv[2], O_WRONLY | O_CREAT | O_TRUNC, 0600);
         DIE(fd_dst < 0, "Failed ro open destination file");
     } else
         fd_dst = STDOUT_FILENO;
 
-    while (1) {
-        memset(buffer, 0, BUFSIZE);
+    while (total_read < total_bytes) {
+        memset(buffer, 0, sizeof(buffer));
+
+        bytes_read = read(fd_src, buffer, BUFSIZE);
+        DIE(bytes_read < 0, "Failed to read from source file");
+
+        total_read += bytes_read;
+
+        total_written = 0;
+        bytes_to_write = bytes_read;
+
+        while (total_written < bytes_read) {
+            bytes_written = write(fd_dst, buffer + total_written,
+                bytes_to_write);
+            DIE(bytes_written < 0, "Failed to write to destination file");
+
+            total_written += bytes_written;
+            bytes_to_write -= bytes_written;
+        }
         
-        bytesRead = read(fd_src, buffer, BUFSIZE);
-        DIE(bytesRead < 0, "Failed to read from source file");
-
-        if (bytesRead == 0)
-            break;
-
-        write(fd_dst, buffer, bytesRead);
     }
 
     rc = close(fd_src);
