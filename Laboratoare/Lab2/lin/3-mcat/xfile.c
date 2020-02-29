@@ -26,7 +26,7 @@ ssize_t xread(int fd, void *buf, size_t count)
 
         if (bytes_read_now < 0)
             return -1;
-        else if(bytes_read_now == 0)
+        else if (bytes_read_now == 0)
             break;
 
         bytes_read += bytes_read_now;
@@ -47,10 +47,8 @@ ssize_t xwrite(int fd, const void *buf, size_t count)
         ssize_t bytes_written_now = write(fd, buf + bytes_written,
                                           count - bytes_written);
 
-        if (bytes_written_now < 0)
+        if (bytes_written_now <= 0)
             return -1;
-        else if(bytes_written_now == 0)
-            break;
 
         bytes_written += bytes_written_now;
     }

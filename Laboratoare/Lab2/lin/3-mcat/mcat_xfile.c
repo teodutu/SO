@@ -16,6 +16,7 @@
 #include <string.h>
 
 #include "utils.h"
+#include "xfile.h"
 
 #define BUFSIZE     32
 
@@ -23,7 +24,7 @@ int main(int argc, char **argv)
 {
     int fd_src, fd_dst, rc;
     int bytes_read;
-    int bytes_written, total_written, bytes_to_write;
+    int bytes_written;
 
     char buffer[BUFSIZE];
 
@@ -45,24 +46,14 @@ int main(int argc, char **argv)
     while (1) {
         memset(buffer, 0, sizeof(buffer));
 
-        bytes_read = read(fd_src, buffer, BUFSIZE);
+        bytes_read = xread(fd_src, buffer, BUFSIZE);
         DIE(bytes_read < 0, "Failed to read from source file");
 
         if (bytes_read == 0)
             break;
 
-        total_written = 0;
-        bytes_to_write = bytes_read;
-
-        while (total_written < bytes_read) {
-            bytes_written = write(fd_dst, buffer + total_written,
-                                  bytes_to_write);
-            DIE(bytes_written < 0, "Failed to write to destination file");
-
-            total_written += bytes_written;
-            bytes_to_write -= bytes_written;
-        }
-        
+        bytes_written = xwrite(fd_dst, buffer, bytes_read);
+        DIE(bytes_written <= 0, "Failed to write to destination file");        
     }
 
     rc = close(fd_src);
