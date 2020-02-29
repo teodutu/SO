@@ -30,17 +30,13 @@ static void do_stuff(void)
 
 static void check_lock(void)
 {
-    int rc;
+    fdlock = open(LOCK_FILE, O_EXCL | O_CREAT, 0777);
 
-    fdlock = open(LOCK_FILE, O_RDWR | O_CREAT, 0777);
-    DIE(fdlock < 0, "Failed to open lock file");
-
-    rc = flock(fdlock, LOCK_EX | LOCK_NB);
-    if (rc < 0) {
-        if (errno == EWOULDBLOCK)
+    if (fdlock < 0) {
+        if (errno == EEXIST)
             printf("\nUnable to lock the file\n\n");
         else
-            DIE(1, "Failed to flock");
+            DIE(1, "Failed to open lock file");
     } else {
         printf("\nGot Lock\n\n");
         del = 1;
@@ -51,11 +47,10 @@ static void clean_up(void)
 {
     int rc;
 
-    rc = flock(fdlock, LOCK_UN);
-    DIE(rc < 0, "Unable to unlock file");
-
-    rc = close (fdlock);
-    DIE(rc < 0, "Unable to unlock file");
+    if (fdlock >= 0) {
+        rc = close (fdlock);
+        DIE(rc < 0, "Unable to unlock file");
+    }
 
     if (del) {
         rc = unlink(LOCK_FILE);
