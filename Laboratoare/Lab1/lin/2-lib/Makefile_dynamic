@@ -9,7 +9,7 @@ LIBS = LD_LIBRARY_PATH
 all: main_dynamic
 
 main_dynamic: main.o lib$(HEX_LIB).so
-	$(CC) $^ -l$(HEX_LIB) -L. -o $@
+	$(CC) $< -l$(HEX_LIB) $(LDFLAGS) -o $@
 
 lib$(HEX_LIB).so: hexdump.o sample.o
 	$(CC) -shared $^ -o $@
