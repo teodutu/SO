@@ -182,7 +182,8 @@ static VOID PipeCommands(PCHAR command1, PCHAR command2)
 		&pi1);
 	DIE(bRet == FALSE, "CreateProcess 1");
 
-	CloseHandle(hWrite);
+	bRet = CloseHandle(hWrite);
+	DIE(bRet == FALSE, "CloseHandle hWrite");
 
 	/*
 	 * TODO 2 - Launch command2 with stdin redirected using CreateProcess
@@ -203,7 +204,8 @@ static VOID PipeCommands(PCHAR command1, PCHAR command2)
 		&pi2);
 	DIE(bRet == FALSE, "CreateProcess 2");
 
-	CloseHandle(hRead);
+	bRet = CloseHandle(hRead);
+	DIE(bRet == FALSE, "CloseHandle hRead");
 
 	/* TODO 2 - Wait for processes to finish */
 	dwRet = WaitForSingleObject(pi1.hProcess, INFINITE);
