@@ -23,13 +23,18 @@
 /*
  * SIGALRM handler - called when the timer expires
  */
-static void timer_handler(int signo)
+static void timer_handler(union sigval arg)
 {
 	time_t curr_time = time(NULL);
 
 	/* TODO - print time */
-	if (signo == SIGALRM)
-		printf("time: %s\n", ctime(&curr_time));
+	/*
+	 * Ca sa nu dea warning de unused param.
+	 * Totusi de ce e 0xffffffffffffffff?
+	 */
+	printf("adresa timerului in handler = %p\n", *(timer_t *)arg.sival_ptr);
+
+	printf("time: %s\n", ctime(&curr_time));
 }
 
 /*
@@ -61,12 +66,30 @@ static void set_timer(void)
 	int rc;
 
 	/* TODO - Create the timer */
-	sev.sigev_notify = SIGEV_SIGNAL;
+	/*
+	 * Folosesc metoda de aici[1], dar problema e ca nu se prea leaga
+	 * componentele intre ele:
+	 * * in man zice ca daca setez sev.sigev_notify = SIGEV_SIGNAL, o sa
+	 * se apeleze handlerul din sev.sigev_notify_function cand semnalul e
+	 * sev.sigev_signo, dar nu pare sa se intample asta...
+	 * * alta neclaritate e de ce daca trimit &timerid in
+	 * sev.sigev_value.sival_ptr, care din man am dedus ca se trimite ca
+	 * parametru handlerului, cand dereferentiez parametrul asta in handler,
+	 * adresa e 0xffffffffffffffff? Ceva clar nu e ok la ce fac pentru ca
+	 * afisez adresa mai jos si pare o adresa legita, nu 0xffffffffffffffff.
+	 *
+	 * [1] http://nicku.org/ossi/lab/processes/programming-posix-threads/sigev_thread.c
+	 */
+	sev.sigev_notify = SIGEV_THREAD;
 	sev.sigev_signo = SIGALRM;
 	sev.sigev_value.sival_ptr = &timerid;
+	sev.sigev_notify_function = timer_handler;
+    	sev.sigev_notify_attributes = NULL;
 
 	rc = timer_create(CLOCK_REALTIME, &sev, &timerid);
 	DIE(rc < 0, "timer_create");
+
+	printf("adresa timerului creat = %p\n\n", timerid);
 
 	/* TODO - Start the timer */
 	its.it_value.tv_sec = TIMEOUT;
@@ -102,7 +125,7 @@ static void wait_for_signal(void)
 
 int main(void)
 {
-	set_signals();	/* configure handler for  SIGALRM */
+	// set_signals();	/* configure handler for  SIGALRM */
 	set_timer();   /* create and start timer */
 
 	while (1)
