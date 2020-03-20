@@ -66,20 +66,6 @@ static void set_timer(void)
 	int rc;
 
 	/* TODO - Create the timer */
-	/*
-	 * Folosesc metoda de aici[1], dar problema e ca nu se prea leaga
-	 * componentele intre ele:
-	 * * in man zice ca daca setez sev.sigev_notify = SIGEV_SIGNAL, o sa
-	 * se apeleze handlerul din sev.sigev_notify_function cand semnalul e
-	 * sev.sigev_signo, dar nu pare sa se intample asta...
-	 * * alta neclaritate e de ce daca trimit &timerid in
-	 * sev.sigev_value.sival_ptr, care din man am dedus ca se trimite ca
-	 * parametru handlerului, cand dereferentiez parametrul asta in handler,
-	 * adresa e 0xffffffffffffffff? Ceva clar nu e ok la ce fac pentru ca
-	 * afisez adresa mai jos si pare o adresa legita, nu 0xffffffffffffffff.
-	 *
-	 * [1] http://nicku.org/ossi/lab/processes/programming-posix-threads/sigev_thread.c
-	 */
 	sev.sigev_notify = SIGEV_THREAD;
 	sev.sigev_signo = SIGALRM;
 	sev.sigev_value.sival_ptr = &timerid;
@@ -110,14 +96,14 @@ static void wait_for_signal(void)
 	int rc;
 
 	/* TODO - wait for signal using sigsuspend */
-	rc = sigfillset(&old_mask);
+	rc = sigemptyset(&old_mask);
 	DIE(rc < 0, "sigfillset");;
 
-	rc = sigdelset(&old_mask, SIGALRM);
+	rc = sigaddset(&old_mask, SIGALRM);
 	DIE(rc < 0, "sigdelset(SIGALRM)");
 
 	/* Ca sa moara imediat cu ctrl+c */
-	rc = sigdelset(&old_mask, SIGINT);
+	rc = sigaddset(&old_mask, SIGINT);
 	DIE(rc < 0, "sigdelset(SIGINT)");
 
 	sigsuspend(&old_mask);
@@ -128,8 +114,8 @@ int main(void)
 	// set_signals();	/* configure handler for  SIGALRM */
 	set_timer();   /* create and start timer */
 
-	while (1)
-		wait_for_signal();
+	while (1);
+		// wait_for_signal();
 
 	return 0;
 }
