@@ -51,7 +51,6 @@ struct stack_element stack[128];
 void show_snapshot(void)
 {
 	for (i = 0; i < size; i++)
-		/* TODO1 - fill in the correct parameters to be printed */
 		printf("[%p]:0x%lx\n", stack[i].address, stack[i].value);
 }
 
@@ -61,9 +60,9 @@ void show_snapshot(void)
 void take_snapshot(void)
 {
 	for (p = ebp; p >= esp; p--) {
-		stack[size].address = p;  /* TODO1: set the current address */
-		stack[size].value   = *p;  /* TODO1: set the value at address */
-		size++;
+		stack[size].address = p;
+		stack[size].value   = *p;
+		size++; 
 	}
 }
 
@@ -84,11 +83,13 @@ void f2(mytype a)
 	v[1] = 7;
 	v[2] = 8;
 
-	/* TODO2: use v so that when function 'f2' returns,
-	 * the 'show_message' function executes
+	/*
+	 * daca suprascriu v[4] (rbp), atunci cand se intoarce in f1, o sa incerce
+	 * sa verifice canary-ul de la [rbp - 8], care nu mai este un canary si e
+	 * evident diferit de canary-ul pus de compilator
 	 */
-	v[5] = (mytype)show_message;
-
+	v[5] = (mytype)show_message; 
+ 
 	/* save current stack pointer */
 	get_esp(esp);
 

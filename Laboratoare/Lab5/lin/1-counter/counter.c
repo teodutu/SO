@@ -21,8 +21,8 @@
 int inc(void)
 {
 	static int val = -1;
-
-	return ++val;
+ 
+	return ++val; 
 }
 
 int main(void)

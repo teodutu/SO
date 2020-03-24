@@ -36,11 +36,13 @@ int main(void)
 			printf("Resize buffer to fit %d elements\n", count);
 
 			/* resize bufferului to fit CHUNK elements */
-			buffer = realloc(buffer, (count + CHUNK) * sizeof(int));
-			DIE(buffer == NULL, "malloc");
+
+			/* inainte cand se aloca memorie se pierdea pointerul la zona veche. */
+			buffer = realloc(buffer, (count + CHUNK) * sizeof(int));  
+			DIE(buffer == NULL, "realloc");  
 		}
 
-		printf("buffer[%d]=%d\n", count - 1, buffer[count - 1]);
+		printf("buffer[%d] = %d\n", count - 1, buffer[count - 1]);
 
 	} while (buffer[count - 1] != STOP);
 

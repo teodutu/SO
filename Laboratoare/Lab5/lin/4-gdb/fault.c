@@ -22,6 +22,11 @@ char *read_message()
 	printf("Give input string: ");
 	fgets(buf, 1024, stdin);
 
+	/*
+	 * cand se returneaza un pointer la o variabila locala,
+	 * compilatorul se prinde ca zona aia se va suprascrie la urmatorul
+	 * apel de functie, asa ca returneaza el NULL.
+	 */
 	return buf;
 }
 

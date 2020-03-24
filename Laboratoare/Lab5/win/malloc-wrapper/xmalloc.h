@@ -17,6 +17,10 @@ void *xmalloc(size_t size);
 
 /* TODO */
 
+/**
+ * ca si xmalloc dar pe dos: dau HeapFree() dupa ce obtin un handle la heapul
+ * procesului
+ */
 #define xfree(ptr)                                              \
 	do {                                                    \
 		BOOL bRet;                                      \

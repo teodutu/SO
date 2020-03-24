@@ -21,7 +21,7 @@ void *xmalloc(size_t size)
 {
 	HANDLE hProcessHeap;
 
-	/* TODO */
+	/* iau handle la heapul procesului si il extind cu HeapAlloc() */
         hProcessHeap = GetProcessHeap();
         DIE(hProcessHeap == NULL, "GetProcessHeap");
 

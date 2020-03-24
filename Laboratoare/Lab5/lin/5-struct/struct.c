@@ -32,14 +32,14 @@ static struct flower_info *allocate_flowers(int no)
 	int ret;
 	struct flower_info *f_info;
 
-	/* TODO: allocate space for 'no' elements of type flower_info */
 	f_info = malloc(no * sizeof(*f_info));
 	DIE(f_info == NULL, "malloc");
 
 	/* initialization */
 	for (i = 0; i < no; i++) {
-		/* TODO: pay attention to the struct fields and
-		 * allocate them accordingly
+		/*
+		 * ne-ai zis si la lab: asprint face malloc + printf si parea
+		 * ce trebuie
 		 */
 		ret = asprintf(&f_info[i].name, "flower__%d__", i);
 		DIE(ret < 0, "asprintf");
@@ -59,6 +59,7 @@ static void free_flowers(struct flower_info *f_info, int no)
 {
 	int i;
 
+	/* PC anul 1, nu e prea mult de zis */
 	for (i = 0; i != no; ++i)
 		free(f_info[i].name);
 

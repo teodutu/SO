@@ -16,9 +16,12 @@ void *my_malloc(size_t size)
 {
 	void *current = NULL;
 
-	/* TODO - user sbrk to alloc at least size bytes */
 	current = sbrk(size);
 
+	/*
+	 * am vazut in man ca sbrk returneaza (void *)-1 cand da fail, si nu NULL
+	 * de aia returnez NULL (ca malloc()-ul) de mana
+	 */
 	if (current == (void *)-1)
 		current = NULL;
 

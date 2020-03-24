@@ -17,8 +17,7 @@ int main(void)
 	unsigned int n = 0xDEADBEEF;
 	unsigned char *w = (unsigned char *)&n;
 
-	/* TODO - use w to show all bytes of n in order */
-
+	/* sistemul e little endian deci octetii sunt pusi invers in memorie */
 	for (i = 0; i != sizeof(n); ++i, ++w)
 		printf("0x%X ", *w);
 

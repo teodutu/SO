@@ -17,28 +17,31 @@ char last_name[]  = "    Potter";
 
 static char *trim(char *s)
 {
-
 	char *p = malloc(strlen(s) + 1);
 	DIE(p == NULL, "malloc");
 
-	char *p_no_space  = p;
-
-	strcpy(p, s);
-
+	/*
+	 * daca se modifica p, el nu mai pointeaza la inceputul unui bloc de
+	 * memorie returnat de malloc, motiv pentru care free()-ul de mai jos
+	 * crapa (nu poate gasi blocul asignat la adresa aia)
+	 */
+	char *p_no_space  = p; 
+ 
+	strcpy(p, s); 
+ 
 	while (*p_no_space == ' ')
 		p_no_space++;
 
-	strcpy(s, p_no_space);
-	free(p);
+	strcpy(s, p_no_space); 
+	free(p); 
 
 	return s;
 }
 
 int main(void)
 {
-
 	printf("%s %s is learning SO!\n",
-			trim(first_name), trim(last_name));
+		trim(first_name), trim(last_name));
 
 	return 0;
 }
