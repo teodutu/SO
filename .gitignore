@@ -54,3 +54,9 @@ dkms.conf
 # Other binary files
 *.zip
 *.pdf
+
+# Windows directories
+.vs
+Debug
+Release
+Backup
