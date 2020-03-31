@@ -63,8 +63,13 @@ int main(void)
 	}
 
 	// schimbare valoare de intors functie
+	/* f e adresa lui foo (0x000000000000076a + cat ii pune loaderul) */
 	f = (int (*)())foo;
 
+	/*
+	 * Secventa [0xb8 0x0c] e inceputul instructiunii `mov    eax,0xc`,
+	 * din care `mov    eax` e 0xb8, deci pe viitor se modifica 0xc in 0xff.
+	 */
 	while ((long)f < (long)page_end &&
 		((long)*f != 0xb8 && *((char *)f + 1) != 0x0c))
 		f++;

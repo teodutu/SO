@@ -52,12 +52,25 @@ int main(void)
 		exit(EXIT_FAILURE);
 
 	case 0:     /* child process */
+		/*
+		 * Apar putine page faulturi pentru ca majoritatea paginilor
+		 * copy on write si nu se scrie inca nimic.
+		 */
 		wait_for_input("child begin");
 
+		/*
+		 * Din nou putine page faulturi, tot pe motiv de copy-on-write
+		 * si pentru ca doar se citeste.
+		 */
 		for (i = 0; i < NUM_PAGES / 2; i++)
 			value = p[i*page_size];
 		wait_for_input("child after read");
 
+		/*
+		 * Acum se scriu chestii in paginile alocate si se face partea
+		 * de write din copy-on-write, deci apar NUM_PAGES / 2 page
+		 * faulturi.
+		 */
 		for (i = NUM_PAGES / 2; i < NUM_PAGES; i++)
 			p[i*page_size] = page_size-i;
 		wait_for_input("child after write");
@@ -69,6 +82,10 @@ int main(void)
 		break;
 	}
 
+	/*
+	 * Schimbarile de pagini sunt "vazute" de procesul parinte acum. Dar
+	 * de ce le vede pentru ca nu are treaba cu paginile alea?
+	 */
 	wait(&status);
 	wait_for_input("parent after wait");
 

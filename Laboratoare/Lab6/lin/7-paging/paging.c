@@ -25,7 +25,6 @@ static void wait_for_input(const char *msg)
 	fgets(buf, 32, stdin);
 }
 
-
 /* lock memory interval [addr, addr + size - 1] */
 static void lock_memory(char *addr, size_t  size)
 {
@@ -36,6 +35,7 @@ static void lock_memory(char *addr, size_t  size)
 	page_offset = (unsigned long) addr%pagesize;
 
 	/* TODO - align addr to page offset and adjust size */
+	/* De ce zice sa modificam si size? */
 	addr -= page_offset;
 
 	/* TODO - lock memory */
@@ -53,6 +53,7 @@ static void unlock_memory(char *addr, size_t  size)
 	page_offset = (unsigned long) addr%pagesize;
 
 	/* TODO - align addr to page offset and adjust size */
+	/* De ce zice sa modificam si size? */
 	addr -= page_offset;
 
 	/* TODO - unlock memory */
@@ -67,6 +68,10 @@ int main(void)
 
 	wait_for_input("beginning");
 
+	/*
+	 * Aici se vede ca se aloca o pagina separata de cea pentru stiva pentru
+	 * data.
+	 */
 	lock_memory(data, DATA_SIZE);
 	wait_for_input("memory locked ");
 

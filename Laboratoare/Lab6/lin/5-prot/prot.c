@@ -38,22 +38,25 @@ static void segv_handler(int signum, siginfo_t *info, void *context)
 	/* TODO 2 - obtain from siginfo_t the memory location
 	 * which caused the page fault
 	 */
+	/* Nu are sens sa salvez adresa ca se obtine rapid din info->si_addr */
 
 	/* TODO 2 - obtain the page which caused the page fault
 	 * Hint: use the address returned by mmap
 	 */
 	pageno = ((char*)info->si_addr - p) / pageSize;
-
-	/* TODO 2 - increase protection for that page */
+	
 	if (how[pageno] == PROT_NONE) {
+		/* Daca nu are permisiuni, incerc PROT_READ */
 		prot = PROT_READ;
 		how[pageno] = PROT_READ;
 
 		fprintf(stderr, "Page %d now has read permissions. \n", pageno);
 	} else {
+		/* Daca PROT_READ nu merge, incerc si PROT_WRITE */
 		prot = PROT_READ | PROT_WRITE;
 		fprintf(stderr, "Page %d now has read-write permissions\n", pageno);
 	}
+	/* Nu se pune problema de PROT_EXEC, asa cu nu-mi pun nici eu. */
 
 	rc = mprotect(p + pageno * pageSize, pageSize, prot);
 	DIE(rc < 0, "mprotect");
@@ -112,6 +115,10 @@ int main(void)
 
 	/* TODO 1 - Access these pages for read and write */
 	for (i = 0; i != sizeof(how) / sizeof(*how); ++i) {
+		/*
+		 * Am si afisat ce se intampla ca sa fie cumva mai clar cand
+		 * si ce permisiuni se dau.
+		 */
 		fprintf(stderr, "Read access %d...\n", i);
 		ch = p[i * pageSize];
 		fprintf(stderr, "OK: %u\n", ch);

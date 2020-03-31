@@ -42,11 +42,21 @@ int main(void)
 	fd = open("Makefile", O_RDWR);
 	DIE(fd == -1, "open");
 
+	/*
+	 * Initial, biblioteca partajata libc e mapata read-only,
+	 * read-write sau read-execute, in functie de ce se foloseste din ea.
+	 * Apoi, apare o noua pagina (4K) cu maparea Makefileului.
+	 * Paginile marcate cu "anon" sunt mapate in RAM (valabil nu doar pentru
+	 * biblioteci).
+	 */
 	p = mmap(NULL, page_size,
-			PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
+		PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
 	DIE(p == MAP_FAILED, "mmap");
 	wait_for_input("after mapping the file");
 
+	/*
+	 * La munmap, pagina dispare din spatiul procesului.
+	 */
 	rc = munmap(p, page_size);
 	DIE(rc == -1, "munmap");
 	wait_for_input("after unmapping the file");
@@ -55,6 +65,10 @@ int main(void)
 	DIE(rc == -1, "close");
 
 	/** Second we map SHARED memory */
+	/*
+	 * Pagina anonima (din RAM) apare ca "zero (deleted)" pentru ca e
+	 * neinitializata si indicata cu 's' (shared), fiind memorie partajata.
+	 */
 	p = mmap(NULL, page_size, PROT_READ | PROT_WRITE,
 				 MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	DIE(p == MAP_FAILED, "mmap");
@@ -65,6 +79,11 @@ int main(void)
 	wait_for_input("after unmapping SHARED memory");
 
 	/** Thrid we map PRIVATE memory */
+	/*
+	 * Similar cu mmapul anterior, dar acum nu mai apare indicativul 's',
+	 * pagina fiind privata, iar tipul datelor nu mai este relevant,
+	 * intrucat doar procesul curent are acces la acea memorie.
+	 */
 	p = mmap(NULL, page_size, PROT_READ | PROT_WRITE,
 				 MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	DIE(p == MAP_FAILED, "mmap");

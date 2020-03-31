@@ -38,6 +38,15 @@ int main(int argc, char *argv[])
 	rc = ftruncate(fdout, statbuf.st_size);
 	DIE(rc < 0, "ftruncate");
 
+	/*
+	 * Se pun ambele fisiere in memorie si se copiaza datele intre ele (cam
+	 * ca la ex 2). Merge simtitor mai rapid decat cp (de vreo 4 ori), dar
+	 * se tin ambele fisiere in memorie, ceea ce nu e chiar ok pt fisiere
+	 * mari...
+	 *
+	 * Exista vreun mod sa dau doar drept de scriere unei pagini, nu si de
+	 * citire? Adica vad ca PROT_WRITE da si drept de citire.
+	 */
 	/* TODO - mmap the input and output file */
 	src = mmap(NULL, statbuf.st_size, PROT_READ, MAP_PRIVATE, fdin, 0);
 	DIE(src == MAP_FAILED, "mmap(src)");
@@ -47,6 +56,9 @@ int main(int argc, char *argv[])
 
 	/* TODO - copy the input file to the output file */
 	memcpy(dst, src, statbuf.st_size);
+
+	rc = msync(dst, statbuf.st_size, MS_ASYNC);
+	DIE(rc < 0, "msync");
 
 	/* TODO - clean up */
 	rc = munmap(src, statbuf.st_size);

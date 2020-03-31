@@ -32,10 +32,21 @@ int main(void)
 	rc = ftruncate(fd, N * sizeof(msg));
 	DIE(rc == -1, "ftruncate");
 
+	/*
+	 * Daca se folseste `MAP_PRIVATE` datele se scriu in RAM si nu in fisier
+	 * (se ignora ultimii 2 parametri), motiv pentru care acum fisierul va
+	 * fi gol.
+	 */
 	mem = mmap(0, N * sizeof(msg), PROT_READ | PROT_WRITE,
 		MAP_PRIVATE, fd, 0);
 	DIE(mem == MAP_FAILED, "mmap");
 
+	/*
+	 * Merge mult mai rapid decat varianta cu write pentru ca acum se
+	 * folosesc doar 2 apeluri de sistem (un mmap si un munmap) fata de
+	 * cele 100000 de apeluri de write din varianta cu write.
+	 * Scrierea acums e face din user space prin memcpy.
+	 */
 	for (i = 0; i < N; i++)
 		memcpy(mem + i * sizeof(msg), msg, sizeof(msg));
 
