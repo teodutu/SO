@@ -10,7 +10,14 @@
 
 int main(void)
 {
+	setbuf(stdout, NULL);
 	fprintf(stdout, "A");
+
+	/*
+	 * Stderr nu se buffereaza si se scrie direct. Din moltivul asta, B
+	 * apare imediat, iar A apare doar la finalul programului, cand se da
+	 * flush.
+	 */
 	fprintf(stderr, "B");
 	sleep(5);
 
