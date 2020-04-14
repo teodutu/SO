@@ -86,7 +86,6 @@ void *thread_routine_y(void *arg)
 
 			pthread_mutex_lock(&data_x.mutex);
 			if (data_x.found) {
-				
 				finished = 1;
 			}
 			pthread_mutex_unlock(&data_x.mutex);
@@ -122,7 +121,6 @@ void *thread_routine_x(void *arg)
 		} else {
 			pthread_mutex_lock(&data_y.mutex);
 			if (data_y.found) {
-				
 				finished = 1;
 			}
 			pthread_mutex_unlock(&data_y.mutex);

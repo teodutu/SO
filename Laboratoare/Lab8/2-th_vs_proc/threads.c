@@ -44,7 +44,6 @@ int main(void)
 	int th_id[NUM_TASKS];
 	int i, rc;
 
-	/* LWP din ps = lightweight process */
 	for (i = 0; i < NUM_TASKS; i++) {
 		th_id[i] = i;
 

@@ -27,7 +27,6 @@ static void wait_for_input(const char *msg)
 	fgets(buf, 32, stdin);
 }
 
-
 void *thread1_function(void *args)
 {
 	int thread_no = *(int *)args;
@@ -43,7 +42,6 @@ void *thread1_function(void *args)
 
 int main(void)
 {
-
 	pthread_t th[N];
 	int rc = 1, i, th_id[N];
 

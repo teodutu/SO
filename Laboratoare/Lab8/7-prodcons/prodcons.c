@@ -71,14 +71,14 @@ void *producer_fn(void *arg)
 
 		/* TODO - lock mutex */
 		rc = pthread_mutex_lock(&mutex);
-		DIE(rc != 0, "[prod]: pthread_mutex_lock");
+		DIE_pthread(rc != 0, "[prod]: pthread_mutex_lock", rc);
 
 		/* TODO - if common area is full
 		 *		then wait until the common area is not full
 		 */
-		if (is_buffer_full(&common_area)) {
+		while (is_buffer_full(&common_area)) {
 			rc = pthread_cond_wait(&buffer_not_full, &mutex);
-			DIE (rc != 0, "[prod]: pthread_cond_wait");
+			DIE_pthread(rc != 0, "[prod]: pthread_cond_wait", rc);
 		}
 
 		/* TODO - insert item into common area */
@@ -91,12 +91,12 @@ void *producer_fn(void *arg)
 		 */
 		if (common_area.count == 1) {
 			rc = pthread_cond_signal(&buffer_not_empty);
-			DIE(rc != 0, "[prod]: pthread_cond_signal");
+			DIE_pthread(rc != 0, "[prod]: pthread_cond_signal", rc);
 		}
 
 		/* TODO - unlock mutex */
 		rc = pthread_mutex_unlock(&mutex);
-		DIE(rc != 0, "[prod]: pthread_mutex_unlock");
+		DIE_pthread(rc != 0, "[prod]: pthread_mutex_unlock", rc);
 
 		if (delay == RAND_DELAY)
 			sleep(rand() % 3);
@@ -115,14 +115,14 @@ void *consumer_fn(void *arg)
 	for (i = 0; i < NR_ITERATIONS; i++) {
 		/* TODO - lock mutex */
 		rc = pthread_mutex_lock(&mutex);
-		DIE(rc != 0, "[cons]: pthread_mutex_lock");
+		DIE_pthread(rc != 0, "[cons]: pthread_mutex_lock". rc);
 
 		/* TODO - if common area is empty
 		 *		then wait until the common area is not empty
 		 */
-		if (is_buffer_empty(&common_area)) {
+		while (is_buffer_empty(&common_area)) {
 			rc = pthread_cond_wait(&buffer_not_empty, &mutex);
-			DIE (rc != 0, "[cons]: pthread_cond_wait");
+			DIE_pthread(rc != 0, "[cons]: pthread_cond_wait", rc);
 		}
 
 		/* TODO - remove item from common area */
@@ -135,12 +135,12 @@ void *consumer_fn(void *arg)
 		 */
 		if (common_area.count == BUFFER_SIZE - 1) {
 			rc = pthread_cond_signal(&buffer_not_full);
-			DIE(rc != 0, "[cons]: pthread_cond_signal");
+			DIE_pthread(rc != 0, "[cons]: pthread_cond_signal", rc);
 		}
 
 		/* TODO - unlock mutex */
 		rc = pthread_mutex_unlock(&mutex);
-		DIE(rc != 0, "[cons]: pthread_mutex_unlock");
+		DIE_pthread(rc != 0, "[cons]: pthread_mutex_unlock", rc);
 
 		if (delay == RAND_DELAY)
 			sleep(rand() % 3);
