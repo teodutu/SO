@@ -10,5 +10,6 @@ Sisteme de operare - UPB 2020
 6. Operatii cu memoria 2
 7. Profiling... toate cacaturile
 8. Threaduri Linux
+9. Threaduri Windows
 
 ## Teme
