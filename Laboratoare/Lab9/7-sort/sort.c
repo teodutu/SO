@@ -103,6 +103,11 @@ DWORD WINAPI ThreadFunc(LPVOID lpParameter)
 	while ((td.threadId % (2 * pow2) == 0) &&
 			(td.threadId + pow2 < NO_THREADS)) {
 		/* TODO - merge chunks */
+		/*
+		 * Cand threadul care trebuie sa trimita date threadului curent
+		 * termina, i se preiau datele. si se trece la "nivelul" urmator
+		 * din sortare.
+		 */
 		dwRet = WaitForSingleObject(threads[td.threadId + pow2],
 			INFINITE);
 		DIE(dwRet == WAIT_FAILED, "WaitForSingleObject(thread)");
@@ -153,6 +158,12 @@ HANDLE init_setup(LPSTR filename)
 		chunk = malloc(sizeof(CHUNK));
 
 		/* TODO - init chunk */
+		/*
+		 * Fiecare thread primeste maximum chunkSize, de la
+		 * adresa pmap + i * chunkSize. 
+		 * Zona unui thread se termina fie dupa chunkSize elemente,
+		 * fie la finalul vectorului.
+		 */
 		chunk->lpMem = pmap + i * chunkSize;
 		chunk->dwLen = min(chunkSize, N - i * chunkSize);
 

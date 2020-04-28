@@ -21,6 +21,11 @@ VOID CALLBACK TimerFunction(PVOID lpParam, BOOLEAN TimerOrWaitFired)
 	printf("'TimerFunction' has been called and count is %d\n", count);
 
 	/* TODO - check if we must increment counter or finish */
+	/*
+	 * In main() dau P() pe semaforul asta si timerul ruleaza, apeleaza
+	 * functia asta si cand a ajuns count la 3 dau V() pe semafor si se
+	 * poate termina si mainul.
+	 */
 	if (++count == TIMES) {
 		bRet = ReleaseSemaphore(finished, 1, NULL);
 		DIE(!bRet, "ReleaseSemaphore(finished) failed");
@@ -48,6 +53,7 @@ int main(void)
 	DIE(!bRet, "CreateTimerQueueTimer() failed");
 
 	/* wait for the semaphore/event to be set, so we can free resources */
+	/* Aici astept semaforul caruia functia din timer ii da V(). */
 	dwRet = WaitForSingleObject(finished, INFINITE);
 	DIE(dwRet == WAIT_FAILED, "WaitForSingleObject(finished) failed");
 

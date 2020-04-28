@@ -32,7 +32,7 @@ DWORD CreateThresholdBarrier(THB_OBJECT *pthb, DWORD b_value)
 	DIE(!hthb->hGuard, "CreateMutex() failed");
 
 	/* TODO - Create Event */
-	hthb->hEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+	hthb->hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
 	DIE(!hthb->hEvent, "CreateEvent() failed");
 	
 	/* set maximum number of waithing threads */
@@ -56,20 +56,27 @@ DWORD WaitThresholdBarrier(THB_OBJECT thb)
 	dwRet = WaitForSingleObject(thb->hGuard, INFINITE);
 	DIE(dwRet == WAIT_FAILED, "WaitForSingleObject(hGuard) failed");
 
-	if (++thb->dwCount == thb->dwThreshold) {
+	/*
+	 * Cresc atomic (cu mutexul de mai sus) nr de threaduri care asteapta.
+	 * Cand ajung la limita resetez numarul si incep sa anunt prin event
+	 * fiecare thread ca poate sa inceapa sa ruleze iar.
+	 * Practic, ultimul thread care a ajuns la bariera le deblocheaza pe
+	 * restul.
+	 */
+	if (++thb->dwCount >= thb->dwThreshold) {
 		thb->dwCount = 0;
 
-		for (i = 0; i != thb->dwThreshold; ++i) {
-			bRet = SetEvent(thb->hEvent);
-			DIE(!bRet, "SetEvent() failed");
-		}
-	}
+		fprintf(stderr, "thread %d deblochez\n", GetCurrentThreadId());
 
-	bRet = ReleaseMutex(thb->hGuard);
-	DIE(!bRet, "ReleaseMutex() failed");
+		bRet = PulseEvent(thb->hEvent);
+		DIE(!bRet, "PulseEvent() failed");
 
-	dwRet = WaitForSingleObject(thb->hEvent, INFINITE);
-	DIE(dwRet == WAIT_FAILED, "WaitForSingleObject(hEvent) failed");
+		bRet = ReleaseMutex(thb->hGuard);
+		DIE(!bRet, "ReleaseMutex() failed");
+	} else {
+		dwRet = SignalObjectAndWait(thb->hGuard, thb->hEvent, INFINITE, FALSE);
+		DIE(dwRet == WAIT_FAILED, "SignalObjectAndWait() failed");
+	}	
 
 	return 0;
 }

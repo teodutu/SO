@@ -19,6 +19,7 @@ HANDLE hMutex;
 
 DWORD WINAPI thread_function(LPVOID arg)
 {
+	BOOL bRet;
 	int i;
 
 	for (i = 0; i < NO_ROUNDS; i++) {
@@ -26,6 +27,11 @@ DWORD WINAPI thread_function(LPVOID arg)
 		 * - Increment counter
 		 * - If the counter hits LIMIT, reset counter
 		 * - Use Interlocked operations
+		 */
+		/*
+		 * Aici count depaseste LIMIT pentru ca e destul sa se intample
+		 * o data o intercalare astfel incat count sa depaseasca LIMIT,
+		 * dupa care, exchange-ul nu mai are niciun efect.
 		 */
 		InterlockedIncrement(&count);
 		InterlockedCompareExchange(&count, 0, LIMIT);
@@ -43,7 +49,6 @@ DWORD WINAPI thread_function_mutex(LPVOID arg)
 		/* TODO 2:
 		 * - Protect operations with a mutex
 		 */
-
 		dwRet = WaitForSingleObject(hMutex, INFINITE);
 		DIE(dwRet == WAIT_FAILED, "WaitForSingleObject(mutex) failed");
 
@@ -73,7 +78,7 @@ int main(void)
 
 		for (i = 0; i < NO_THREADS; i++) {
 			hThread[i] = CreateThread(NULL, 0,
-				thread_function_mutex, NULL, 0, NULL);
+				thread_function, NULL, 0, NULL);
 			DIE(hThread[i] == NULL, "CreateThread");
 		}
 

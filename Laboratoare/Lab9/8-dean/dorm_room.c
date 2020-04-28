@@ -43,6 +43,12 @@ void party(void)
 		/* TODO - continue to party while the dean
 		 * is _not_ in the room
 		 */
+		/*
+		 * De fiecare data se ia mutexul chestiei care se verifica.
+		 * Cand intra decanul, se iese din functie => se parasesete
+		 * camera (nu stau eu in regie ca-s din Bucuresti, da' cand
+		 * vreun decan a facut chestii de genu' asta?)
+		 */
 		dwRet = WaitForSingleObject(dean_mutex, INFINITE);
 		DIE(dwRet == WAIT_FAILED, "WaitForSingleObject(dean_mutex) failed");
 
@@ -76,9 +82,15 @@ void enter_room(void)
 	dwRet = WaitForSingleObject(dean_mutex, INFINITE);
 	DIE(dwRet == WAIT_FAILED, "WaitForSingleObject(dean_mutex) failed");
 
+	/*
+	 * Studentul intra in camera doar daca nu e deja decanul acolo.
+	 * Apoi, se incrementeaza atomic nr de studenti (cu mutexul stud_mutex),
+	 * dupa care se da V pe ambii mutecsi.
+	 */
 	if (!dean_in_room) {
 		dwRet = WaitForSingleObject(stud_mutex, INFINITE);
-		DIE(dwRet == WAIT_FAILED, "WaitForSingleObject(stud_mutex) failed");
+		DIE(dwRet == WAIT_FAILED,
+			"WaitForSingleObject(stud_mutex) failed");
 
 		++students_at_party;
 		dbg_student("joining party");
@@ -116,27 +128,32 @@ void break_party(void)
 	DWORD dwRet;
 
 	/* this code is executed by the dean */
+	/*
+	 * Decanul asteapta pana cand sunt destui studenti in camera (sau cand
+	 * nu e nimeni) si intra.
+	 */
 	while (1) {
 		/* TODO - wait for
 		 * 1. the party to get wild
 		 * or
 		 * 2. no students are in the room
 		 */
-		dwRet = WaitForSingleObject(dean_mutex, INFINITE);
-		DIE(dwRet == WAIT_FAILED, "WaitForSingleObject(dean_mutex) failed");
-
 		dwRet = WaitForSingleObject(stud_mutex, INFINITE);
 		DIE(dwRet == WAIT_FAILED, "WaitForSingleObject(stud_mutex) failed");
 
 		if (!students_at_party || students_at_party >= wild_party) {
+			dwRet = WaitForSingleObject(dean_mutex, INFINITE);
+			DIE(dwRet == WAIT_FAILED,
+				"WaitForSingleObject(dean_mutex) failed");
+
 			dean_in_room = 1;
 			dbg_dean("entering room");
 
-			bRet = ReleaseMutex(stud_mutex);
-			DIE(!bRet, "ReleaseMutex(stud_mutex) failed");
-
 			bRet = ReleaseMutex(dean_mutex);
 			DIE(!bRet, "ReleaseMutex(dean_mutex) failed");
+
+			bRet = ReleaseMutex(stud_mutex);
+			DIE(!bRet, "ReleaseMutex(stud_mutex) failed");
 
 			break;
 		} else
@@ -151,6 +168,10 @@ void break_party(void)
 		Sleep(1);
 	}
 
+	/*
+	 * Decanul sta in camera pana cand nu mai e nimeni.
+	 * Nu schimba dean_in_room ca sa nu mai intre alti studenti.
+	 */
 	while (1) {
 		/* TODO - wait for every one to leave the party */
 
@@ -159,7 +180,8 @@ void break_party(void)
 
 		if (!students_at_party) {
 			dwRet = WaitForSingleObject(dean_mutex, INFINITE);
-			DIE(dwRet == WAIT_FAILED, "WaitForSingleObject(dean_mutex) failed");
+			DIE(dwRet == WAIT_FAILED,
+				"WaitForSingleObject(dean_mutex) failed");
 
 			dbg_dean("leaving room");
 
