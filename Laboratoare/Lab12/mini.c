@@ -112,7 +112,10 @@ int main(void)
 				DIE(1, "statbuf.st_mode", continue);
 
 			printf("%s: <%c> %d:%d\n",
-			       arg1, file_type, major(statbuf.st_rdev), minor(statbuf.st_rdev));
+				arg1, file_type, major(statbuf.st_rdev),
+				minor(statbuf.st_rdev));
+
+			continue;
 		}
 #endif
 
@@ -131,13 +134,17 @@ int main(void)
 			DIE(!arg3, "strtok 3", continue);
 
 			ret = mount(arg1, arg2, arg3, 0, NULL);
-			DIE(ret < 0, "mount", continue);
+			DIE(ret < 0, "mount", ;);
+
+			continue;
 		} else if (strncmp(cmd, "umount", 6) == 0) {
 			/* TODO3: implement umount */
 			arg1 = strtok(NULL, delim); /* target */
 
 			ret = umount(arg1);
 			DIE(ret < 0, "umount", ;);
+
+			continue;
 		}
 #endif
 
@@ -154,6 +161,8 @@ int main(void)
 
 			ret = symlink(arg1, arg2);
 			DIE(ret < 0, "symlink", ;);
+
+			continue;
 		} else if (strncmp(cmd, "unlink", 6) == 0) {
 			/* TODO4: implement unlink */
 			arg1 = strtok(NULL, delim); /* pathname */
@@ -161,6 +170,8 @@ int main(void)
 
 			ret = unlink(arg1);
 			DIE(ret < 0, "unlink", ;);
+
+			continue;
 		}
 #endif
 
@@ -174,6 +185,8 @@ int main(void)
 
 			ret = mkdir(arg1, 0755);
 			DIE(ret < 0, "mkdir", ;);
+
+			continue;
 		} else if (strncmp(cmd, "rmdir", 5) == 0) {
 			/* TODO5: implement rmdir pathname */
 			arg1 = strtok(NULL, delim); /* pathname */
@@ -181,6 +194,8 @@ int main(void)
 
 			ret = rmdir(arg1);
 			DIE(ret < 0, "rmdir", ;);
+
+			continue;
 		}
 #endif
 
@@ -195,6 +210,8 @@ int main(void)
 
 			ret = ls(arg1);
 			DIE(ret < 0, "ls", ;);
+
+			continue;
 		}
 #endif
 
@@ -208,6 +225,8 @@ int main(void)
 
 			ret = chdir(arg1);
 			DIE(ret < 0, "chdir", continue);
+
+			continue;
 		} else if (strncmp(cmd, "pwd", 3) == 0) {
 			/* TODO7: implement pwdir
 			 * e.g: pwd
@@ -219,6 +238,8 @@ int main(void)
 			DIE(!arg1, "getcwd", continue);
 
 			printf("%s\n", line);
+
+			continue;
 		}
 #endif
 	}
