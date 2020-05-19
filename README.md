@@ -13,5 +13,4 @@ Sisteme de operare - UPB 2020
 9. Threaduri _Windows_
 10. _I/O++_ in _Windows_
 11. _I/O++_ in _Linux_
-
-## Teme
+12. Operatii pe sistemul de fisiere
