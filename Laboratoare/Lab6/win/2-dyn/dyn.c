@@ -35,7 +35,10 @@ unsigned char code[] = {
 	0xC3			 /* ret              (3) */
 };
 
-/* opens the calculator in Windows 10 :))) */
+/*
+ * Asta deschide calculatorul in Windows 10.
+ * L-am gasit pe net cand cautam shellcodeuri :)))
+ */
 UCHAR calc_code[] =	"\x50\x53\x51\x52\x56\x57\x55\x89"
 			"\xe5\x83\xec\x18\x31\xf6\x56\x6a"
 			"\x63\x66\x68\x78\x65\x68\x57\x69"
@@ -68,10 +71,16 @@ int main(void)
 	 * - ergo any dynamically generated code could be treated this way
 	 */
 
+	/*
+	 * Se aloca o noua zona executabila, in care o sa se scrie codul binar
+	 * din calc_code/code.
+	 * Codul asta e executat mai jos, in printf.
+	 */
 	dyncode = (int (*)(int)) VirtualAlloc(NULL, pageSize,
 		MEM_COMMIT, PAGE_EXECUTE_READWRITE);
 	DIE(dyncode == NULL, "VirtualAlloc");
 
+	// memcpy(dyncode, code, sizeof(code));
 	memcpy(dyncode, calc_code, sizeof(calc_code));
 
 	printf("valoare intoarsa = %d\n", (*dyncode)(2));

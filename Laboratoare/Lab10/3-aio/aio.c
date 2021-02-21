@@ -87,11 +87,11 @@ static void xwrite(HANDLE fd, const char *buf, DWORD len)
 
 	while (len > bytes_so_far) {
 		dwRet = WriteFile(
-				fd,
-				buf + bytes_so_far,
-				len - bytes_so_far,
-				&bytes_written,
-				NULL);
+			fd,
+			buf + bytes_so_far,
+			len - bytes_so_far,
+			&bytes_written,
+			NULL);
 		DIE(dwRet == FALSE, "WriteFile");
 		bytes_so_far += bytes_written;
 	}

@@ -119,6 +119,9 @@ static void wait_aio(io_context_t ctx, int nops)
 		rc = read(efd, &efd_ops, sizeof(efd_ops));
 		DIE(rc < 0, "read(efd_ops)");
 	}
+
+	rc = io_getevents(ctx, nops, nops, events, NULL);
+	DIE(rc < 0, "io_getevents");
 #endif
 
 }

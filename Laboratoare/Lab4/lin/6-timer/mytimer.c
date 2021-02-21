@@ -32,7 +32,7 @@ static void timer_handler(union sigval arg)
 	 * Ca sa nu dea warning de unused param.
 	 * Totusi de ce e 0xffffffffffffffff?
 	 */
-	printf("adresa timerului in handler = %p\n", *(timer_t *)arg.sival_ptr);
+	printf("adresa timerului in handler = %d\n", arg.sival_int);
 
 	printf("time: %s\n", ctime(&curr_time));
 }
@@ -67,8 +67,7 @@ static void set_timer(void)
 
 	/* TODO - Create the timer */
 	sev.sigev_notify = SIGEV_THREAD;
-	sev.sigev_signo = SIGALRM;
-	sev.sigev_value.sival_ptr = &timerid;
+	sev.sigev_value.sival_int = 2;
 	sev.sigev_notify_function = timer_handler;
     	sev.sigev_notify_attributes = NULL;
 

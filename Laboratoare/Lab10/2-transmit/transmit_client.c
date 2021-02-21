@@ -25,13 +25,13 @@ static HANDLE open_file(const char *filename)
 	HANDLE hFile;
 
 	hFile = CreateFile(
-				filename,
-				GENERIC_READ,
-				0,
-				NULL,
-				OPEN_EXISTING,
-				FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED,
-				NULL);
+		filename,
+		GENERIC_READ,
+		0,
+		NULL,
+		OPEN_EXISTING,
+		FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED,
+		NULL);
 	DIE(hFile == INVALID_HANDLE_VALUE, "CreateFile");
 
 	return hFile;

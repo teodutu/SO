@@ -35,6 +35,7 @@ int chld_pid[CLIENT_COUNT];
 /* TODO - uncomment this for task 3 */
 int sig_fd;
 
+/* Am schimbat get_index astfel incat sa returneaze indexul asociat unui pid */
 static int get_index(pid_t pid)
 {
 	int i;
@@ -54,7 +55,7 @@ static int server(void)
 
 	/* epoll event structure */
 	struct epoll_event ev;
-	struct epoll_event recv_ev[CLIENT_COUNT + 1];
+	struct epoll_event evs[CLIENT_COUNT + 1];
 
 	int i;
 	int recv_msgs;
@@ -92,22 +93,26 @@ static int server(void)
 
 	while (recv_msgs < CLIENT_COUNT) {
 		/* TODO - use epoll to wait to read from pipes */
-		num_events = epoll_wait(efd, recv_ev,
+		num_events = epoll_wait(efd, evs,
 			CLIENT_COUNT - recv_msgs + 1, -1);
 		DIE(num_events < 0, "server: epoll_wait failed");
 
 		for (i = 0; i != num_events; ++i) {
-			if (recv_ev[i].data.fd != sig_fd
-				&& (recv_ev[i].events & EPOLLIN)) {
+			/*
+			 * Am verificat si sa fie eveniment de EPOLLIN ca daca
+			 * o fi vreo eroare sau ceva (EPOLERR de ex), sa n-o iau
+			 * in considerare.
+			 */
+			if (evs[i].data.fd != sig_fd
+				&& (evs[i].events & EPOLLIN)) {
 				++recv_msgs;
 
-				recv_count = read(recv_ev[i].data.fd, msg,
+				recv_count = read(evs[i].data.fd, msg,
 					MSG_SIZE);
 				DIE(recv_count < 0, "server: read failed");
 
-				msg[recv_count] = '\0';
 				printf("server received: %s\n", msg);
-			} else if (recv_ev[i].events & EPOLLIN) {
+			} else if (evs[i].events & EPOLLIN) {
 				rc = read(sig_fd, &fdsi, sizeof(fdsi));
 				DIE(rc < 0, "server: read(fdsi) failed");
 
@@ -116,7 +121,7 @@ static int server(void)
 
 					rc = epoll_ctl(efd, EPOLL_CTL_DEL,
 						pipes[index][PIPE_READ],
-						recv_ev + i);
+						evs + i);
 					DIE(rc < 0,
 						"server: epoll_ctl(EPOLL_CTL_DEL) failed");
 

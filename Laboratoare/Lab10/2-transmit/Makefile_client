@@ -1,0 +1,17 @@
+CPP = cl
+UTILS_DIR=../utils
+
+CFLAGS = /nologo /W3 /D_CRT_SECURE_NO_WARNINGS /I$(UTILS_DIR) /I../sock_utils
+
+FILE = transmit_client
+
+build: $(FILE).exe
+
+$(FILE).exe: $(FILE).obj sock_util.obj
+    $(CPP) /Fe$@ $**
+
+sock_util.obj: ../sock_utils/sock_util.c
+    $(CPP) $(CFLAGS) /c $**
+
+clean:
+   del /Q /S /F sock_util.obj $(FILE).exe $(FILE).obj

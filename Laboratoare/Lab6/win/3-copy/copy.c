@@ -42,6 +42,11 @@ LPVOID map(HANDLE fd, DWORD size)
 	LPVOID p;
 
 	/* TODO map file */
+	/*
+	 * Facute ca in ex. 1.
+	 * Pentru simplitate, drepturile sunt PAGE_READWRITE, chit ca nu e
+	 * nevoie de write pentru src si de read pentru dst...
+	 */
 	hFileMap = CreateFileMapping(
 		fd,
 		NULL,
@@ -80,6 +85,7 @@ int main(int argc, char **argv)
 	hDst = open(argv[2], CREATE_ALWAYS);
 
 	/* TODO - truncate the output file to the input file size */
+	/* Fix ca pe Linux dar cu alte apeluri de sistem */
 	size = GetFileSize(hSrc, NULL);
 	DIE(size == INVALID_FILE_SIZE, "GetFileSize");
 
